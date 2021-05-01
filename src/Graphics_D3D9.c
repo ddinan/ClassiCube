@@ -1,6 +1,7 @@
 #include "Core.h"
 
 #ifdef CC_BUILD_D3D9
+/* Direct3D9 fixed function backend */
 /*#define D3D_DISABLE_9EX causes compile errors*/
 #define WIN32_LEAN_AND_MEAN
 #define NOSERVICE

@@ -542,5 +542,8 @@
     <ClCompile Include="Graphics_GL15.c">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics_GL20.c">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
