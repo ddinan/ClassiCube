@@ -23,7 +23,6 @@
 #include "String.h"
 #include "Logger.h"
 #include "Window.h"
-#include "Funcs.h"
 #include "Chat.h"
 #include "Errors.h"
 

@@ -6,6 +6,7 @@
 #include "Bitmap.h"
 #include "Options.h"
 #include "ExtMath.h"
+#include "Funcs.h"
 
 /* Provides common code for Graphics backends */
 /* NOTE: This header is for INTERNAL use only - 

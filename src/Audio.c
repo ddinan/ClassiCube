@@ -65,11 +65,11 @@ static cc_result Audio_AllAvailable(struct AudioContext* ctx, cc_bool* finished)
 *------------------------------------------------------OpenAL backend-----------------------------------------------------*
 *#########################################################################################################################*/
 /* Simpler to just include subset of OpenAL actually use here instead of including */
-/* === BEGIN OPENAL HEADERS === */
+/* ===================== BEGIN OPENAL HEADERS ===================== */
 #if defined _WIN32
-#define APIENTRY __cdecl
+#define ALAPI __cdecl
 #else
-#define APIENTRY
+#define ALAPI
 #endif
 #define AL_NONE              0
 #define AL_SOURCE_STATE      0x1010
@@ -86,26 +86,26 @@ typedef int ALsizei;
 typedef int ALenum;
 
 /* Apologies for the ugly dynamic symbol definitions here */
-static ALenum (APIENTRY *_alGetError)(void);
-static void   (APIENTRY *_alGenSources)(ALsizei n, ALuint* sources);
-static void   (APIENTRY *_alDeleteSources)(ALsizei n, const ALuint* sources);
-static void   (APIENTRY *_alGetSourcei)(ALuint source, ALenum param, ALint* value);
-static void   (APIENTRY *_alSourcePlay)(ALuint source); 
-static void   (APIENTRY *_alSourceStop)(ALuint source);
-static void   (APIENTRY *_alSourceQueueBuffers)(ALuint source, ALsizei nb, const ALuint* buffers);
-static void   (APIENTRY *_alSourceUnqueueBuffers)(ALuint source, ALsizei nb, ALuint* buffers);
-static void   (APIENTRY *_alGenBuffers)(ALsizei n, ALuint* buffers); 
-static void   (APIENTRY *_alDeleteBuffers)(ALsizei n, const ALuint* buffers);
-static void   (APIENTRY *_alBufferData)(ALuint buffer, ALenum format, const void* data, ALsizei size, ALsizei freq);
+static ALenum (ALAPI *_alGetError)(void);
+static void   (ALAPI *_alGenSources)(ALsizei n, ALuint* sources);
+static void   (ALAPI *_alDeleteSources)(ALsizei n, const ALuint* sources);
+static void   (ALAPI *_alGetSourcei)(ALuint source, ALenum param, ALint* value);
+static void   (ALAPI *_alSourcePlay)(ALuint source); 
+static void   (ALAPI *_alSourceStop)(ALuint source);
+static void   (ALAPI *_alSourceQueueBuffers)(ALuint source, ALsizei nb, const ALuint* buffers);
+static void   (ALAPI *_alSourceUnqueueBuffers)(ALuint source, ALsizei nb, ALuint* buffers);
+static void   (ALAPI *_alGenBuffers)(ALsizei n, ALuint* buffers); 
+static void   (ALAPI *_alDeleteBuffers)(ALsizei n, const ALuint* buffers);
+static void   (ALAPI *_alBufferData)(ALuint buffer, ALenum format, const void* data, ALsizei size, ALsizei freq);
 
-static void   (APIENTRY *_alDistanceModel)(ALenum distanceModel);
-static void*     (APIENTRY *_alcCreateContext)(void* device, const ALint* attrlist);
-static ALboolean (APIENTRY *_alcMakeContextCurrent)(void* context);
-static void      (APIENTRY *_alcDestroyContext)(void* context);
-static void*     (APIENTRY *_alcOpenDevice)(const char* devicename);
-static ALboolean (APIENTRY *_alcCloseDevice)(void* device);
-static ALenum    (APIENTRY *_alcGetError)(void* device);
-/* === END OPENAL HEADERS === */
+static void      (ALAPI *_alDistanceModel)(ALenum distanceModel);
+static void*     (ALAPI *_alcCreateContext)(void* device, const ALint* attrlist);
+static ALboolean (ALAPI *_alcMakeContextCurrent)(void* context);
+static void      (ALAPI *_alcDestroyContext)(void* context);
+static void*     (ALAPI *_alcOpenDevice)(const char* devicename);
+static ALboolean (ALAPI *_alcCloseDevice)(void* device);
+static ALenum    (ALAPI *_alcGetError)(void* device);
+/* ===================== END OPENAL HEADERS ===================== */
 
 struct AudioContext {
 	ALuint source;

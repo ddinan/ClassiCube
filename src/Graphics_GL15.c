@@ -5,51 +5,129 @@
 - OpenGL 1.5 or OpenGL 1.2 + GL_ARB_vertex_buffer_object fixed function backend
 - OpenGL 1.1 backend (completely lacking GPU, fallbacks to say Windows built-in software rasteriser)
 */
-#if defined CC_BUILD_WIN
-#define WIN32_LEAN_AND_MEAN
-#define NOSERVICE
-#define NOMCX
-#define NOIME
-#include <windows.h>
-#include <GL/gl.h>
-#elif defined CC_BUILD_MACOS
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 #include "_GraphicsBase.h"
 #include "String.h"
 #include "Logger.h"
 #include "Window.h"
-#include "Funcs.h"
 #include "Chat.h"
 #include "Errors.h"
 
-/* Not present in gl.h on Windows (only up to OpenGL 1.1) */
-#define _GL_ARRAY_BUFFER         0x8892
-#define _GL_ELEMENT_ARRAY_BUFFER 0x8893
-#define _GL_STATIC_DRAW          0x88E4
-#define _GL_DYNAMIC_DRAW         0x88E8
-#define _GL_TEXTURE_MAX_LEVEL    0x813D
-
-#if defined CC_BUILD_GL11
-static GLuint activeList;
-#define gl_DYNAMICLISTID 1234567891
-static void* dynamicListData;
-static cc_uint16 gl_indices[GFX_MAX_INDICES];
-#else
+/* ===================== BEGIN OPENGL HEADERS ===================== */
+#ifdef CC_BUILD_WIN
 /* OpenGL functions use stdcall instead of cdecl on Windows */
-#ifndef APIENTRY
-#define APIENTRY
-#endif
-static void (APIENTRY *_glBindBuffer)(GLenum target, GLuint buffer);
-static void (APIENTRY *_glDeleteBuffers)(GLsizei n, const GLuint *buffers);
-static void (APIENTRY *_glGenBuffers)(GLsizei n, GLuint *buffers);
-static void (APIENTRY *_glBufferData)(GLenum target, cc_uintptr size, const GLvoid* data, GLenum usage);
-static void (APIENTRY *_glBufferSubData)(GLenum target, cc_uintptr offset, cc_uintptr size, const GLvoid* data);
+#define GLAPI __stdcall
+#else
+#define GLAPI
 #endif
 
-#define PIXEL_FORMAT 0x80E1 /* GL_BGRA_EXT */
+typedef unsigned int GLenum;
+typedef unsigned char GLboolean;
+typedef unsigned char GLubyte;
+typedef int GLint;
+typedef unsigned int GLuint;
+typedef float GLfloat;
+
+#define GL_LEQUAL                 0x0203
+#define GL_GREATER                0x0204
+#define GL_LINES                  0x0001
+#define GL_TRIANGLES              0x0004
+#define GL_DEPTH_BUFFER_BIT       0x00000100
+#define GL_COLOR_BUFFER_BIT       0x00004000
+#define GL_SRC_ALPHA              0x0302
+#define GL_ONE_MINUS_SRC_ALPHA    0x0303
+#define GL_UNSIGNED_BYTE          0x1401
+#define GL_UNSIGNED_SHORT         0x1403
+#define GL_UNSIGNED_INT           0x1405
+#define GL_FLOAT                  0x1406
+#define GL_EXP                    0x0800
+#define GL_EXP2                   0x0801
+#define GL_CULL_FACE              0x0B44
+#define GL_FOG                    0x0B60
+#define GL_FOG_DENSITY            0x0B62
+#define GL_FOG_START              0x0B63
+#define GL_FOG_END                0x0B64
+#define GL_FOG_MODE               0x0B65
+#define GL_FOG_COLOR              0x0B66
+#define GL_DEPTH_TEST             0x0B71
+#define GL_MATRIX_MODE            0x0BA0
+#define GL_VIEWPORT               0x0BA2
+#define GL_ALPHA_TEST             0x0BC0
+#define GL_BLEND                  0x0BE2
+#define GL_FOG_HINT               0x0C54
+#define GL_MAX_TEXTURE_SIZE       0x0D33
+#define GL_DEPTH_BITS             0x0D56
+#define GL_TEXTURE_2D             0x0DE1
+#define GL_NICEST                 0x1102
+#define GL_COMPILE                0x1300
+#define GL_MODELVIEW              0x1700
+#define GL_PROJECTION             0x1701
+#define GL_TEXTURE                0x1702
+#define GL_RGBA                   0x1908
+#define GL_VENDOR                 0x1F00
+#define GL_RENDERER               0x1F01
+#define GL_VERSION                0x1F02
+#define GL_EXTENSIONS             0x1F03
+#define GL_NEAREST                0x2600
+#define GL_LINEAR                 0x2601
+#define GL_NEAREST_MIPMAP_LINEAR  0x2702
+#define GL_TEXTURE_MAG_FILTER     0x2800
+#define GL_TEXTURE_MIN_FILTER     0x2801
+#define GL_REPEAT                 0x2901
+#define GL_VERTEX_ARRAY           0x8074
+#define GL_COLOR_ARRAY            0x8076
+#define GL_TEXTURE_COORD_ARRAY    0x8078
+#define GL_BGRA_EXT               0x80E1
+/* Not present in gl.h on Windows (only up to OpenGL 1.1) */
+#define _GL_ARRAY_BUFFER          0x8892
+#define _GL_ELEMENT_ARRAY_BUFFER  0x8893
+#define _GL_STATIC_DRAW           0x88E4
+#define _GL_DYNAMIC_DRAW          0x88E8
+#define _GL_TEXTURE_MAX_LEVEL     0x813D
+
+/* Apologies for the ugly external symbol definitions here */
+extern void GLAPI glAlphaFunc(GLenum func, GLfloat ref);
+extern void GLAPI glBindTexture(GLenum target, GLuint texture);
+extern void GLAPI glBlendFunc(GLenum sfactor, GLenum dfactor);
+extern void GLAPI glCallList(GLuint list);
+extern void GLAPI glClear(GLenum mask);
+extern void GLAPI glClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+extern void GLAPI glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+extern void GLAPI glColorPointer(GLint size, GLenum type, GLint stride, const void* pointer);
+extern void GLAPI glDeleteLists(GLuint list, GLint range);
+extern void GLAPI glDeleteTextures(GLint n, const GLuint* textures);
+extern void GLAPI glDepthFunc(GLenum func);
+extern void GLAPI glDepthMask(GLboolean flag);
+extern void GLAPI glDisable(GLenum cap);
+extern void GLAPI glDisableClientState(GLenum array);
+extern void GLAPI glDrawArrays(GLenum mode, GLint first, GLint count);
+extern void GLAPI glDrawElements(GLenum mode, GLint count, GLenum type, const void* indices);
+extern void GLAPI glEnable(GLenum cap);
+extern void GLAPI glEnableClientState(GLenum array);
+extern void GLAPI glEndList(void);
+extern void GLAPI glFogf(GLenum pname, GLfloat param);
+extern void GLAPI glFogfv(GLenum pname, const GLfloat* params);
+extern void GLAPI glFogi(GLenum pname, GLint param);
+extern GLuint GLAPI glGenLists(GLint range);
+extern void GLAPI glGenTextures(GLint n, GLuint* textures);
+extern void GLAPI glGetIntegerv(GLenum pname, GLint* params);
+extern const char* GLAPI glGetString(GLenum name);
+extern void GLAPI glHint(GLenum target, GLenum mode);
+extern void GLAPI glLoadIdentity(void);
+extern void GLAPI glLoadMatrixf(const GLfloat* m);
+extern void GLAPI glMatrixMode(GLenum mode);
+extern void GLAPI glNewList(GLint list, GLenum mode);
+extern void GLAPI glReadPixels(GLint x, GLint y, GLint width, GLint height, GLenum format, GLenum type, void* pixels);
+extern void GLAPI glTexCoordPointer(GLint size, GLenum type, GLint stride, const void* pointer);
+extern void GLAPI glTexImage2D(GLenum target, GLint level, GLint internalformat, GLint width, GLint height, GLint border, GLenum format, GLenum type, const void* pixels);
+extern void GLAPI glTexParameteri(GLenum target, GLenum pname, GLint param);
+extern void GLAPI glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint width, GLint height, GLenum format, GLenum type, const void* pixels);
+extern void GLAPI glVertexPointer(GLint size, GLenum type, GLint stride, const void* pointer);
+extern void GLAPI glViewport(GLint x, GLint y, GLint width, GLint height);
+/* ===================== END OPENGL HEADERS ===================== */
+
+
+#define GL_UNSIGNED_INT_8_8_8_8_REV 0x8367
+#define PIXEL_FORMAT GL_BGRA_EXT
 #if defined CC_BIG_ENDIAN
 /* Pixels are stored in memory as A,R,G,B but GL_UNSIGNED_BYTE will interpret as B,G,R,A */
 /* So use GL_UNSIGNED_INT_8_8_8_8_REV instead to remedy this */
@@ -58,6 +136,19 @@ static void (APIENTRY *_glBufferSubData)(GLenum target, cc_uintptr offset, cc_ui
 /* Pixels are stored in memory as B,G,R,A and GL_UNSIGNED_BYTE will interpret as B,G,R,A */
 /* So fine to just use GL_UNSIGNED_BYTE here */
 #define TRANSFER_FORMAT GL_UNSIGNED_BYTE
+#endif
+
+#if defined CC_BUILD_GL11
+static GLuint activeList;
+#define gl_DYNAMICLISTID 1234567891
+static void* dynamicListData;
+static cc_uint16 gl_indices[GFX_MAX_INDICES];
+#else
+static void (GLAPI *_glBindBuffer)(GLenum target, GLuint buffer);
+static void (GLAPI *_glDeleteBuffers)(GLint n, const GLuint* buffers);
+static void (GLAPI *_glGenBuffers)(GLint n, GLuint *buffers);
+static void (GLAPI *_glBufferData)(GLenum target, cc_uintptr size, const void* data, GLenum usage);
+static void (GLAPI *_glBufferSubData)(GLenum target, cc_uintptr offset, cc_uintptr size, const void* data);
 #endif
 
 typedef void (*GL_SetupVBFunc)(void);
@@ -85,8 +176,8 @@ static void GL_BackendInit(void) {
 		DynamicLib_Sym2("glBufferSubDataARB", glBufferSubData)
 	};
 	static const cc_string vboExt = String_FromConst("GL_ARB_vertex_buffer_object");
-	cc_string extensions = String_FromReadonly((const char*)glGetString(GL_EXTENSIONS));
-	const GLubyte* ver   = glGetString(GL_VERSION);
+	cc_string extensions = String_FromReadonly(glGetString(GL_EXTENSIONS));
+	const char* ver      = glGetString(GL_VERSION);
 
 	/* Version string is always: x.y. (and whatever afterwards) */
 	int major = ver[0] - '0', minor = ver[2] - '0';
@@ -106,7 +197,6 @@ static void GL_BackendInit(void) {
 static void GL_BackendInit(void) { MakeIndices(gl_indices, GFX_MAX_INDICES); }
 #endif /* CC_BUILD_GL11 */
 
-static void GL_CheckSupport(void);
 void Gfx_Create(void) {
 	GLContext_Create();
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &Gfx.MaxTexWidth);
@@ -594,7 +684,7 @@ static void Gfx_RestoreState(void) {
 }
 
 cc_bool Gfx_WarnIfNecessary(void) {
-	cc_string renderer = String_FromReadonly((const char*)glGetString(GL_RENDERER));
+	cc_string renderer = String_FromReadonly(glGetString(GL_RENDERER));
 
 #ifdef CC_BUILD_GL11
 	Chat_AddRaw("&cYou are using the very outdated OpenGL backend.");

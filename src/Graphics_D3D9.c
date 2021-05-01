@@ -15,7 +15,6 @@
 #include "String.h"
 #include "Logger.h"
 #include "Window.h"
-#include "Funcs.h"
 #include "Errors.h"
 
 /* Current format and size of vertices */
