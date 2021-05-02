@@ -192,6 +192,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animations.h" />
+    <ClInclude Include="_GLBase.h" />
     <ClInclude Include="_GraphicsBase.h" />
     <ClInclude Include="Http.h" />
     <ClInclude Include="Audio.h" />
