@@ -805,7 +805,7 @@ static struct ChatScreen {
 	int chatIndex, paddingX, paddingY;
 	int lastDownloadStatus;
 	struct FontDesc chatFont, announcementFont, bigAnnouncementFont, smallAnnouncementFont;
-	struct TextWidget announcement, bigAnnouncement, smallAnnouncement;
+	struct TextWidget announcement, bigAnnouncement, smallAnnouncement, topAnnouncement;
 	struct ChatInputWidget input;
 	struct TextGroupWidget status, bottomRight, chat, clientStatus;
 	struct SpecialInputWidget altText;
@@ -889,6 +889,7 @@ static void ChatScreen_Redraw(struct ChatScreen* s) {
 	TextWidget_Set(&s->announcement, &Chat_Announcement, &s->announcementFont);
 	TextWidget_Set(&s->bigAnnouncement, &Chat_BigAnnouncement, &s->bigAnnouncementFont);
 	TextWidget_Set(&s->smallAnnouncement, &Chat_SmallAnnouncement, &s->smallAnnouncementFont);
+	TextWidget_Set(&s->topAnnouncement, &Chat_TopAnnouncement, &s->chatFont);
 	TextGroupWidget_RedrawAll(&s->status);
 	TextGroupWidget_RedrawAll(&s->bottomRight);
 	TextGroupWidget_RedrawAll(&s->clientStatus);
@@ -1000,6 +1001,8 @@ static void ChatScreen_ChatReceived(void* screen, const cc_string* msg, int type
 		TextWidget_Set(&s->bigAnnouncement, msg, &s->bigAnnouncementFont);
 	} else if (type == MSG_TYPE_SMALLANNOUNCEMENT) {
 		TextWidget_Set(&s->smallAnnouncement, msg, &s->smallAnnouncementFont);
+	} else if (type == MSG_TYPE_TOPANNOUNCEMENT) {
+		TextWidget_Set(&s->topAnnouncement, msg, &s->chatFont);
 	} else if (type >= MSG_TYPE_CLIENTSTATUS_1 && type <= MSG_TYPE_CLIENTSTATUS_2) {
 		TextGroupWidget_Redraw(&s->clientStatus, type - MSG_TYPE_CLIENTSTATUS_1);
 		ChatScreen_UpdateChatYOffsets(s);
@@ -1063,10 +1066,15 @@ static void ChatScreen_DrawChat(struct ChatScreen* s, double delta) {
 	if (s->smallAnnouncement.tex.ID && now > Chat_SmallAnnouncementReceived + 5) {
 		Elem_Free(&s->smallAnnouncement);
 	}
+	
+	if (s->topAnnouncement.tex.ID && now > Chat_TopAnnouncementReceived + 5) {
+		Elem_Free(&s->topAnnouncement);
+	}
 
 	Elem_Render(&s->announcement, delta);
 	Elem_Render(&s->bigAnnouncement, delta);
 	Elem_Render(&s->smallAnnouncement, delta);
+	Elem_Render(&s->topAnnouncement, delta);
 
 	if (s->grabsInput) {
 		Elem_Render(&s->input.base, delta);
@@ -1096,6 +1104,7 @@ static void ChatScreen_ContextLost(void* screen) {
 	Elem_Free(&s->announcement);
 	Elem_Free(&s->bigAnnouncement);
 	Elem_Free(&s->smallAnnouncement);
+	Elem_Free(&s->topAnnouncement);
 
 #ifdef CC_BUILD_TOUCH
 	Elem_Free(&s->more);
@@ -1152,6 +1161,10 @@ static void ChatScreen_Layout(void* screen) {
 	Widget_SetLocation(&s->smallAnnouncement, ANCHOR_CENTRE, ANCHOR_CENTRE, 0, 0);
 	s->smallAnnouncement.yOffset = WindowInfo.Height / 20;
 	Widget_Layout(&s->smallAnnouncement);
+
+	Widget_SetLocation(&s->topAnnouncement, ANCHOR_CENTRE, ANCHOR_CENTRE, 0, 0);
+	s->topAnnouncement.yOffset = -WindowInfo.Height / 2.125;
+	Widget_Layout(&s->topAnnouncement);
 
 #ifdef CC_BUILD_TOUCH
 	if (WindowInfo.SoftKeyboard == SOFT_KEYBOARD_SHIFT) {
@@ -1340,6 +1353,7 @@ static void ChatScreen_Init(void* screen) {
 	TextWidget_Init(&s->announcement);
 	TextWidget_Init(&s->bigAnnouncement);
 	TextWidget_Init(&s->smallAnnouncement);
+	TextWidget_Init(&s->topAnnouncement);
 
 	s->status.collapsible[0]       = true; /* Texture pack downloading status */
 	s->status.collapsible[1]       = true; /* Reduced performance mode status */

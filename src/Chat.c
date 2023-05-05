@@ -25,6 +25,7 @@ static char client[2][STRING_SIZE];
 static char announcement[STRING_SIZE];
 static char bigAnnouncement[STRING_SIZE];
 static char smallAnnouncement[STRING_SIZE];
+static char topAnnouncement[STRING_SIZE];
 
 cc_string Chat_Status[5]       = { String_FromArray(status[0]), String_FromArray(status[1]), String_FromArray(status[2]),
                                                                 String_FromArray(status[3]), String_FromArray(status[4]) };
@@ -34,10 +35,12 @@ cc_string Chat_ClientStatus[2] = { String_FromArray(client[0]), String_FromArray
 cc_string Chat_Announcement = String_FromArray(announcement);
 cc_string Chat_BigAnnouncement = String_FromArray(bigAnnouncement);
 cc_string Chat_SmallAnnouncement = String_FromArray(smallAnnouncement);
+cc_string Chat_TopAnnouncement = String_FromArray(topAnnouncement);
 
 double Chat_AnnouncementReceived;
 double Chat_BigAnnouncementReceived;
 double Chat_SmallAnnouncementReceived;
+double Chat_TopAnnouncementReceived;
 
 struct StringsBuffer Chat_Log, Chat_InputLog;
 cc_bool Chat_Logging;
@@ -242,6 +245,9 @@ void Chat_AddOf(const cc_string* text, int msgType) {
 	} else if (msgType == MSG_TYPE_SMALLANNOUNCEMENT) {
 		String_Copy(&Chat_SmallAnnouncement, text);
 		Chat_SmallAnnouncementReceived = Game.Time;
+	} else if (msgType == MSG_TYPE_TOPANNOUNCEMENT) {
+		String_Copy(&Chat_TopAnnouncement, text);
+		Chat_TopAnnouncementReceived = Game.Time;
 	} else if (msgType >= MSG_TYPE_CLIENTSTATUS_1 && msgType <= MSG_TYPE_CLIENTSTATUS_2) {
 		String_Copy(&Chat_ClientStatus[msgType - MSG_TYPE_CLIENTSTATUS_1], text);
 	} else if (msgType >= MSG_TYPE_EXTRASTATUS_1 && msgType <= MSG_TYPE_EXTRASTATUS_2) {
@@ -695,6 +701,7 @@ static void ClearCPEMessages(void) {
 	Chat_AddOf(&String_Empty, MSG_TYPE_ANNOUNCEMENT);
 	Chat_AddOf(&String_Empty, MSG_TYPE_BIGANNOUNCEMENT);
 	Chat_AddOf(&String_Empty, MSG_TYPE_SMALLANNOUNCEMENT);
+	Chat_AddOf(&String_Empty, MSG_TYPE_TOPANNOUNCEMENT);
 	Chat_AddOf(&String_Empty, MSG_TYPE_STATUS_1);
 	Chat_AddOf(&String_Empty, MSG_TYPE_STATUS_2);
 	Chat_AddOf(&String_Empty, MSG_TYPE_STATUS_3);
