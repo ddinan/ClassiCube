@@ -235,6 +235,27 @@ static struct ChatCommand ResolutionCommand = {
 	}
 };
 
+static void PlayersCommand_Execute(const cc_string* args, int argsCount) {
+	Chat_AddRaw("&ePlayers:");
+
+	int id = 0;
+	for (id = 0; id < TABLIST_MAX_NAMES; id++)
+	{
+		if (!TabList.NameOffsets[id]) continue;
+		cc_string player = TabList_UNSAFE_GetPlayer(id);
+		Chat_Add1("%s", &player);
+	}
+}
+
+static struct ChatCommand PlayersCommand = {
+	"Players", PlayersCommand_Execute,
+	COMMAND_FLAG_UNSPLIT_ARGS,
+	{
+		"&a/client players",
+		"&eShows a list of online players.",
+	}
+};
+
 static void ModelCommand_Execute(const cc_string* args, int argsCount) {
 	if (argsCount) {
 		Entity_SetModel(&Entities.CurPlayer->Base, args);
@@ -723,6 +744,7 @@ static void OnInit(void) {
 	Commands_Register(&HelpCommand);
 	Commands_Register(&RenderTypeCommand);
 	Commands_Register(&ResolutionCommand);
+	Commands_Register(&PlayersCommand);
 	Commands_Register(&ModelCommand);
 	Commands_Register(&TeleportCommand);
 	Commands_Register(&ClearDeniedCommand);
