@@ -671,7 +671,7 @@ static CC_INLINE void Game_RenderFrame(double delta) {
 	Game_Vertices = 0;
 
 	if (Input.Sources & INPUT_SOURCE_GAMEPAD) Gamepad_Tick(delta);
-	Camera.Active->UpdateMouse(Entities.CurPlayer, delta);
+	if (!Camera.Locked) Camera.Active->UpdateMouse(Entities.CurPlayer, delta);
 
 	if (!Window_Main.Focused && !Gui.InputGrab) Gui_ShowPauseMenu();
 
@@ -684,7 +684,7 @@ static CC_INLINE void Game_RenderFrame(double delta) {
 	t = (float)(entTask.accumulator / entTask.interval);
 	LocalPlayer_SetInterpPosition(Entities.CurPlayer, t);
 
-	Camera.CurrentPos = Camera.Active->GetPosition(t);
+	if (!Camera.Locked) Camera.CurrentPos = Camera.Active->GetPosition(t);
 	/* NOTE: EnvRenderer_UpdateFog also also sets clear color */
 	EnvRenderer_UpdateFog();
 	AudioBackend_Tick();

@@ -17,6 +17,7 @@
 #include "TexturePack.h"
 #include "Options.h"
 #include "Drawer2D.h"
+#include "Camera.h"
 
 #define COMMANDS_PREFIX "/client"
 #define COMMANDS_PREFIX_SPACE "/client "
@@ -206,6 +207,21 @@ static struct ChatCommand RenderTypeCommand = {
 		"&blegacy: &eSame as normal mode, &cbut is usually slightly slower",
 		"   &eIf you have issues with clouds and map edges disappearing randomly, use this mode",
 		"&bfast: &eSacrifices clouds, fog and overhead sky for faster performance",
+	}
+};
+
+static void LockCameraCommand_Execute(const cc_string* args, int argsCount) {
+	Camera.Locked = !Camera.Locked;
+	const char* lockedStatus = &Camera.Locked ? "locked" : "unlocked";
+	Chat_Add1("&e/client: &fCamera is now %s.", lockedStatus);
+}
+
+static struct ChatCommand LockCameraCommand = {
+	"LockCamera", LockCameraCommand_Execute,
+	COMMAND_FLAG_UNSPLIT_ARGS,
+	{
+		"&a/client lockcamera",
+		"&eLocks or unlocks the camera from following the player.",
 	}
 };
 
@@ -743,6 +759,7 @@ static void OnInit(void) {
 	Commands_Register(&GpuInfoCommand);
 	Commands_Register(&HelpCommand);
 	Commands_Register(&RenderTypeCommand);
+	Commands_Register(&LockCameraCommand);
 	Commands_Register(&ResolutionCommand);
 	Commands_Register(&PlayersCommand);
 	Commands_Register(&ModelCommand);

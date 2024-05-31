@@ -21,6 +21,7 @@ CC_VAR extern struct _CameraData {
 	cc_bool Clipping;
 	/* Whether to invert vertical mouse movement. */
 	cc_bool Invert;
+	cc_bool Locked;
 
 	/* Tilt effect applied to the camera. */
 	struct Matrix TiltM;
